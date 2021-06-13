@@ -24,4 +24,11 @@ install(FILES
   status.h
   types.h
   util.h
+  sasl/sasl-callbacks.h
+  sasl/sasl-client.h
+  sasl/thrift/TSasl.h
+  sasl/thrift/TSaslTransport.h
+  sasl/krb/authentication-details
+  sasl/krb/kinit-context.h
+  sasl/krb/renewal-process.h
   DESTINATION include/hs2client)

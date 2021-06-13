@@ -167,6 +167,24 @@ message(STATUS "Thrift library path: ${THRIFT_LIBS}")
 message(STATUS "Thrift static library: ${THRIFT_STATIC_LIB}")
 message(STATUS "Thrift compiler: ${THRIFT_COMPILER}")
 # for static linking with Thrift, THRIFT_STATIC_LIB is set in FindThrift.cmake
+
+find_package(OpenSSL REQUIRED)
+#set(LIBS ${LIBS} ${OPENSSL_LIBRARIES})
+set(OPENSSL_LIBRARIES "/usr/lib64/libssl.so:/usr/lib64/libcrypto.so")
+set(OPENSSL_INCLUDE_DIRS "/usr/include/openssl")
+
+set(LIBS ${LIBS} ${OPENSSL_LIBRARIES})
+
+message(STATUS "OpenSSL include dir: " ${OPENSSL_INCLUDE_DIRS})
+message(STATUS "OpenSSL libraries: " ${OPENSSL_LIBRARIES})
+
+find_path(CYRUS_SASL_INCLUDE_DIR sasl/sasl.h)
+find_library(CYRUS_SASL_LIBRARIES sasl2)
+
+set(LIBS ${LIBS} ${CYRUS_SASL_LIBRARIES})
+message(STATUS "CyrusSASL include dir: " ${CYRUS_SASL_INCLUDE_DIR})
+message(STATUS "CyrusSASL libraries: " ${CYRUS_SASL_LIBRARIES})
+
 add_library(thriftstatic STATIC IMPORTED)
 set_target_properties(thriftstatic PROPERTIES IMPORTED_LOCATION ${THRIFT_STATIC_LIB})
 
@@ -203,7 +221,7 @@ set(EXECUTABLE_OUTPUT_PATH "${BUILD_OUTPUT_ROOT_DIRECTORY}")
 # For CMAKE_BUILD_TYPE=Release
 #   -O3: Enable all compiler optimizations
 #   -g: Enable symbols for profiler tools (TODO: remove for shipping)
-set(CXX_FLAGS_DEBUG "-ggdb -O0")
+set(CXX_FLAGS_DEBUG "-ggdb -O0 -lssl -lcrypto")
 set(CXX_FLAGS_FASTDEBUG "-ggdb -O1")
 set(CXX_FLAGS_RELEASE "-O3 -g")
 
@@ -220,6 +238,8 @@ else()
 endif ()
 
 message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
+
+add_compile_options(-std=c++11)
 
 # Build with C++11 and SSE3 by default
 # TODO(wesm): These compiler warning suppressions should be removed one by one
@@ -295,6 +315,12 @@ set(LIBHS2CLIENT_SRCS
   src/hs2client/thrift-internal.cc
   src/hs2client/types.cc
   src/hs2client/util.cc
+  src/hs2client/sasl/sasl-callbacks.cpp
+  src/hs2client/sasl/sasl-client.cpp
+  src/hs2client/sasl/thrift/TSaslTransport.cpp
+  src/hs2client/sasl/krb/kinit-context.cpp
+  src/hs2client/sasl/krb/renewal-process.cpp
+  src/hs2client/sasl/krb/authentication-details.cpp
 )
 
 if ("${HS2CLIENT_LINK}" STREQUAL "d" OR "${HS2CLIENT_LINK}" STREQUAL "a")
@@ -321,7 +347,7 @@ add_dependencies(hs2client hs2client_thrift)
 set_target_properties(hs2client
   PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY "${BUILD_OUTPUT_ROOT_DIRECTORY}")
-target_link_libraries(hs2client ${LIBHS2CLIENT_LINK_LIBS})
+target_link_libraries(hs2client ${LIBHS2CLIENT_LINK_LIBS} ${CYRUS_SASL_LIBRARIES})
 SET_TARGET_PROPERTIES(hs2client PROPERTIES LINKER_LANGUAGE CXX)
 
 if(APPLE)

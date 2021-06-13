@@ -30,6 +30,10 @@ Status Status::Error(const string& msg) {
   return Status(StatusCode::Error, msg);
 }
 
+Status Status::RuntimeError(const string& msg) {
+  return Status(StatusCode::Error, msg);
+}
+
 Status Status::InvalidHandle() {
   return Status(StatusCode::InvalidHandle);
 }
@@ -45,7 +49,8 @@ bool Status::IsStillExecuting() const {
 }
 
 bool Status::IsError() const {
-  return code_ == StatusCode::Error;
+  return code_ == StatusCode::Error ||
+         code_ == StatusCode::RuntimeError;
 }
 
 bool Status::IsInvalidHandle() const {

@@ -16,6 +16,7 @@
 #define HS2CLIENT_STATUS_H
 
 #include <string>
+#include "hs2client/sasl/krb/scoped_cleanup.h"
 
 namespace hs2client {
 
@@ -30,6 +31,7 @@ enum class StatusCode {
 
   // General errors, usually has a message set with more details.
   Error,
+  RuntimeError,
 
   // The session or operation handle is invalid, eg. because it has been closed.
   InvalidHandle,
@@ -40,6 +42,7 @@ class Status {
   static Status OK(const std::string& msg = "");
   static Status StillExecuting();
   static Status Error(const std::string& msg);
+  static Status RuntimeError(const std::string& msg);
   static Status InvalidHandle();
 
   bool ok() const;

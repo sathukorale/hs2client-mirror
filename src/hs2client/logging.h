@@ -33,6 +33,8 @@ namespace hs2client {
 
 #define HS2CLIENT_LOG_INTERNAL(level) hs2client::internal::CerrLog(level)
 #define HS2CLIENT_LOG(level) HS2CLIENT_LOG_INTERNAL(HS2CLIENT_##level)
+#define LOG(level) HS2CLIENT_LOG(level)
+#define WARNING(level) HS2CLIENT_LOG(level)
 
 #define HS2CLIENT_CHECK(condition)                                   \
   (condition) ? 0 : ::hs2client::internal::FatalLog(HS2CLIENT_FATAL) \
